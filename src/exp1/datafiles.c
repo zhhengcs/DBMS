@@ -1,7 +1,8 @@
-ï»¿#include "stdio.h"
+#include "stdio.h"
+#include "structfile.c"
 
 /**
- * @brief åˆ›å»ºæ•°æ®æ–‡ä»¶ï¼Œè¯»å†™æ•°æ®æ–‡ä»¶ 
+ * @brief ´´½¨Êı¾İÎÄ¼ş£¬¶ÁĞ´Êı¾İÎÄ¼ş 
  *
  * @param 
  * @return  int 
@@ -16,10 +17,10 @@
  	char name[10]; 
  };
  
- int createDataFile()
+ int createDataFile(long fileSize)
  {
 /**
- * @brief åˆ›å»ºæ•°æ®æ–‡ä»¶ 
+ * @brief ´´½¨Êı¾İÎÄ¼ş 
  *
  * @param 
  * @return  int 
@@ -29,11 +30,26 @@
  **/
  	FILE *fp;
  	char ch;
- 	fp=fopen("datafile1.dat", "wb");
-	fseek( fp, 8192*2, SEEK_SET );		//åˆ›å»ºä¸€ä¸ª2ä¸ªå—çš„æ•°æ®æ–‡ä»¶ 
+ 	struct DataFile df1;
+	
+	/** ³õÊ¼»¯ÎÄ¼şÍ·ĞÅÏ¢ **/ 
+	df1.pageOfFile = fileSize/8192;
+ 	df1.sizePerPage = 8192;
+ 	df1.freeCount = fileSize/8192-1;
+ 	df1.pagefreeHead = 2;
+	df1.pagefreeTail = 128;
+	df1.pageDataMemoryHead = 2; 	
+ 	/** ³õÊ¼»¯ÎÄ¼şÍ·ĞÅÏ¢ **/
+ 	
+ 	
+ 	fp=fopen("datafile1.dat", "wb"); 	
+ 	fwrite(&df1, sizeof(struct DataFile), 1, fp );
+ 	
+	fseek( fp, df1.pageOfFile*df1.sizePerPage, SEEK_SET);	//´´½¨Ò»¸ö2¸ö¿éµÄÊı¾İÎÄ¼ş 
 	ch = '\0';
-	fwrite(ch, sizeof(char), 1, fp );	
+	fwrite(&ch, sizeof(char), 1, fp);	
  	fclose(fp);
+ 	printf("Create file over.");
  	return 0;
  };
  
@@ -41,7 +57,7 @@
  int writePageToFile()
  {
 /**
- * @brief å†™æ•°æ®æ–‡ä»¶ 
+ * @brief Ğ´Êı¾İÎÄ¼ş 
  *
  * @param 
  * @return  int 
@@ -53,16 +69,21 @@
  	FILE *fp;
  	struct student s1;
  	strcpy( s1.id, "2016000669");
- 	strcpy( s1.name, "å†·å‹æ–¹");
+ 	strcpy( s1.name, "ÀäÓÑ·½");
  	fp=fopen("datafile1.dat", "wb");
-	fwrite(&s1, sizeof(struct student), 1, fp); //æŠŠæ•°æ®å†™å›æ–‡ä»¶ 
-	fclose(fp);
+ 	fseek( fp, 8192, SEEK_SET);
+ 	//fread(&s1,8192,1,fp);
+	fwrite(&s1, sizeof(struct student), 1, fp); //°ÑÊı¾İĞ´»ØÎÄ¼ş 
+	fseek( fp, 1024*1024, SEEK_SET);	//´´½¨Ò»¸ö2¸ö¿éµÄÊı¾İÎÄ¼ş 
+	char ch = '\0';
+	fwrite(&ch, sizeof(char), 1, fp);	
+ 	fclose(fp);
  }; 
 
  int readDataFile()
  {
 /**
- * @brief è¯»æ•°æ®æ–‡ä»¶ 
+ * @brief ¶ÁÊı¾İÎÄ¼ş 
  *
  * @param 
  * @return  int 
@@ -74,8 +95,9 @@
 	FILE *fp;
  	struct student s2;
  	fp=fopen("datafile1.dat", "rb");
-	fread(&s2,sizeof(struct student),1,fp);//æŠŠæ–‡ä»¶å†…å®¹è¯»å…¥åˆ°ç¼“å­˜
+	fread(&s2,8192,1,fp);//°ÑÎÄ¼şÄÚÈİ¶ÁÈëµ½»º´æ
 	fclose(fp);
 	printf("%s", s2.id);
 	printf("%s", s2.name);
  };
+ 

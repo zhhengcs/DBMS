@@ -1,18 +1,18 @@
-ï»¿#include "stdio.h"
+#include "stdio.h"
 
 int allocateBuff(long buffSize)
 {
 /**
- * @brief åˆ†é…ä¸€å¤§å—ç©ºé—²å†…å­˜ï¼Œè¯¥å†…å­˜åŒ…å«å¾ˆå¤šå†…å­˜page 
+ * @brief ·ÖÅäÒ»´ó¿é¿ÕÏĞÄÚ´æ,¸ÃÄÚ´æ°üº¬ºÜ¶àÄÚ´æpage 
  *
- * @param buffSize: åˆ†é…çš„buffå¤§å° 
+ * @param buffSize: ·ÖÅäµÄbuff´óĞ¡ 
  * @return  int 
  *
  * @author Andy
  * @date 2016/10/16
 **/
  
- int buffPageNum; //åˆ†é…çš„bufferåŒ…å«çš„å—æ•°é‡
+ int buffPageNum; //·ÖÅäµÄbuffer°üº¬µÄ¿éÊıÁ¿
  
  //buffPageNum = buffSize/
 } 
@@ -20,7 +20,7 @@ int allocateBuff(long buffSize)
 int queryFreeBuff()
 {
 /**
- * @brief æŸ¥æ‰¾ä¸€ä¸ªç©ºé—²å†…å­˜å— 
+ * @brief ²éÕÒÒ»¸ö¿ÕÏĞÄÚ´æ¿é 
  *
  * @param 
  * @return  int 
@@ -33,7 +33,7 @@ int queryFreeBuff()
 int buffSwith()
 {
 /**
- * @brief æ·˜æ±°ä¸€ä¸ªå†…å­˜å—ï¼Œå¹¶ä»æ–‡ä»¶è¯»å…¥ä¸€ä¸ªæ–°å— 
+ * @brief ÌÔÌ­Ò»¸öÄÚ´æ¿é£¬²¢´ÓÎÄ¼ş¶ÁÈëÒ»¸öĞÂ¿é 
  *
  * @param 
  * @return  int 
