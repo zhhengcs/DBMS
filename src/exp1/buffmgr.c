@@ -13,7 +13,7 @@ int allocateBuff(long buffSize)
 **/
  
  int buffPageNum; //分配的buffer包含的块数量
- 
+ //mollac(buffSize);
  //buffPageNum = buffSize/
 } 
 
