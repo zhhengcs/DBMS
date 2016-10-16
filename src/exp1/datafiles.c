@@ -1,7 +1,7 @@
-#include "stdio.h"
+ï»¿#include "stdio.h"
 
 /**
- * @brief ´´½¨Êı¾İÎÄ¼ş£¬¶ÁĞ´Êı¾İÎÄ¼ş 
+ * @brief åˆ›å»ºæ•°æ®æ–‡ä»¶ï¼Œè¯»å†™æ•°æ®æ–‡ä»¶ 
  *
  * @param 
  * @return  int 
@@ -19,7 +19,7 @@
  int createDataFile()
  {
 /**
- * @brief ´´½¨Êı¾İÎÄ¼ş 
+ * @brief åˆ›å»ºæ•°æ®æ–‡ä»¶ 
  *
  * @param 
  * @return  int 
@@ -30,7 +30,7 @@
  	FILE *fp;
  	char ch;
  	fp=fopen("datafile1.dat", "wb");
-	fseek( fp, 8192*2, SEEK_SET );		//´´½¨Ò»¸ö2¸ö¿éµÄÊı¾İÎÄ¼ş 
+	fseek( fp, 8192*2, SEEK_SET );		//åˆ›å»ºä¸€ä¸ª2ä¸ªå—çš„æ•°æ®æ–‡ä»¶ 
 	ch = '\0';
 	fwrite(ch, sizeof(char), 1, fp );	
  	fclose(fp);
@@ -41,7 +41,7 @@
  int writePageToFile()
  {
 /**
- * @brief Ğ´Êı¾İÎÄ¼ş 
+ * @brief å†™æ•°æ®æ–‡ä»¶ 
  *
  * @param 
  * @return  int 
@@ -53,16 +53,16 @@
  	FILE *fp;
  	struct student s1;
  	strcpy( s1.id, "2016000669");
- 	strcpy( s1.name, "ÀäÓÑ·½");
+ 	strcpy( s1.name, "å†·å‹æ–¹");
  	fp=fopen("datafile1.dat", "wb");
-	fwrite(&s1, sizeof(struct student), 1, fp); //°ÑÊı¾İĞ´»ØÎÄ¼ş 
+	fwrite(&s1, sizeof(struct student), 1, fp); //æŠŠæ•°æ®å†™å›æ–‡ä»¶ 
 	fclose(fp);
  }; 
 
  int readDataFile()
  {
 /**
- * @brief ¶ÁÊı¾İÎÄ¼ş 
+ * @brief è¯»æ•°æ®æ–‡ä»¶ 
  *
  * @param 
  * @return  int 
@@ -74,7 +74,7 @@
 	FILE *fp;
  	struct student s2;
  	fp=fopen("datafile1.dat", "rb");
-	fread(&s2,sizeof(struct student),1,fp);//°ÑÎÄ¼şÄÚÈİ¶ÁÈëµ½»º´æ
+	fread(&s2,sizeof(struct student),1,fp);//æŠŠæ–‡ä»¶å†…å®¹è¯»å…¥åˆ°ç¼“å­˜
 	fclose(fp);
 	printf("%s", s2.id);
 	printf("%s", s2.name);
