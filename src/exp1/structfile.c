@@ -4,9 +4,11 @@
 //#define SIZE_BUFF 32
 //#define Page_Per_Segment 128 
 
-struct File
+
+struct FileHead
 {
 	int file_deleted;
+	long file_id;
 	char fileName[64];
 };
 
@@ -18,7 +20,7 @@ struct SysFile
 */  
 	long sizePerPage;           //每一个页的大小
 	long fileNumber;			//整个数据库包含的文件个数 
-    struct File files[Max_File_Number]; 	//整个数据库所包含的所有数据文件 
+    struct FileHead files[Max_File_Number]; 	//整个数据库所包含的所有数据文件 
 };
 
 struct DataFile  
@@ -33,7 +35,7 @@ struct DataFile
 	long freeCount;             //当前可用的页数 
 	long bitMapAddr;			//bitMap在存储文件中的地址
 	long sizeBitMap;			//bitMap的大小,以字节为单位
-	long *data;                 //指向当前的地址
+	long *data;          //指向当前的地址
     char *pageDataMemoryHead;   //数据区域头指针
 };
 /*
@@ -50,8 +52,9 @@ struct mapTable                 //逻辑地址到物理地址的映射表
 }; */
 struct Page
 {
-   long sizeOfhead;           // 头 head 的大小  
+   int pageID;	//page ID 
+   int fileID;  //file ID
+   long sizeOfhead;           // 头head 的大小  
    long free_size;
-   long recordNumber;         //里面有多少记录
-   long *addressOfLastRecord; //最后 一个记录的地址
+   long recordNumber;         //Page里面有多少记录
 };

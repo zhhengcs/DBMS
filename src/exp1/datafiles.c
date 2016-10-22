@@ -41,7 +41,7 @@
  	printf("Create the system file.\n");
  	fp=fopen(sysFileName, "wb");
  	
- 	struct File file1;
+ 	struct FileHead file1;
  	file1.file_deleted = 0;
  	strcpy(file1.fileName,sysFileName);
  	sf1.files[0]=file1;
@@ -98,7 +98,7 @@
  };
  
 
- int writePageToFile()
+ int writePageToFile(struct Page page1)
  {
 /**
  * @brief 写数据文件 
@@ -122,7 +122,7 @@
  }; 
 
 
- int readDataFile()
+ int readDataFile(long pageno, long file_id, struct MemBlock *pofm, struct SysFile *sf1)
  {
 /**
  * @brief 读数据文件 
@@ -137,15 +137,16 @@
 	FILE *fp;
  	struct student s2;
  	struct DataFile df2;
- 	fp=fopen("../data/datafile1.dbf", "rb");
+ 	char *filename;
+	filename = sf1->files[file_id].fileName;
+ 	fp=fopen(filename, "rb");
  	rewind(fp);
- 	fread(&df2, sizeof(struct DataFile),1,fp);//把文件内容读入到缓存
- 	
- 	fseek(fp, 8192, SEEK_SET);
-	fread(&s2, sizeof(struct student),1,fp);//把文件内容读入到缓存
 
+ 	fseek(fp, 8192*pageno, SEEK_SET);
+	fread(pofm, 8192, 1,fp);//把文件内容读入到缓存
 	fclose(fp);
 
+	/*
 	printf("************DB file information*************\n");
 	printf("Page of file: %d\n", df2.pageOfFile);
 	printf("Size per page: %d\n", SIZE_PER_PAGE);
@@ -154,6 +155,7 @@
 	printf("\n************Data information*************\n");
 	printf("Student id:%s\n", s2.id);
 	printf("Student name:%s\n", s2.name);
+	*/
  };
  
  
