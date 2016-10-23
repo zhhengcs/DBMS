@@ -87,15 +87,23 @@ int buffSwith(struct MemBlock *pofm,struct SysFile *sf,linkQnode *q,long fileid,
  * @date 2016/10/16 
 **/
     long tmppageno= q->front->data.pageno;
-    if(q->front->data.isedit == 1)
+    if(q->buffsize==32)
     {
+        if(q->front->data.isedit == 1)
+        {
+            char *filename = sf->files[q->front->data.fileid].fileName;
+            FILE *fp=fopen(filename, "wb");
+            fseek(fp, q->front->data.pageno*SIZE_PER_PAGE, SEEK_SET);
+            fwrite(pofm->data, sizeof(pofm->data), 1, fp );
+            //ch = '\0';
+            fclose(fp);
+        }
+        readDataFile(pageno,fileid,pofm,sf);
+    }
+    else
+    {
+        readDataFile(pageno,fileid,q->rear,sf);
 
-        char *filename = sf->files[q->front->data.fileid].fileName;
-        FILE *fp=fopen(filename, "wb");
-        fseek(fp, q->front->data.pageno*SIZE_PER_PAGE, SEEK_SET);
-        fwrite(pofm->data, sizeof(pofm->data), 1, fp );
-        //ch = '\0';
-        fclose(fp);
     }
     //QueuePtr p;
     //if (q -> front = q -> rear) return;
@@ -105,5 +113,5 @@ int buffSwith(struct MemBlock *pofm,struct SysFile *sf,linkQnode *q,long fileid,
     //if (q -> rear == p)
      //   q -> rear = q -> front;
     //free (p);
-    readDataFile(pageno,fileid,pofm,sf);
+
 } 
