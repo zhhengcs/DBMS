@@ -4,16 +4,12 @@
 #include "memblock.h"
 #include "structfile.h"
 //initial a queue
-int initQueue (linkQueue *q)
+int initQueue (linkQueue q)
 {
-    printf("1");
-    
-	q -> front = q -> rear= (QueuePtr)malloc(sizeof(Qnode));
-    printf("2");
-    if (!q->front) exit (0);
-    printf("3");
-    q->front = q;
-    printf("4");
+    q.front = q.rear= (QueuePtr)malloc(sizeof(Qnode));
+	//q->front = q->rear= (QueuePtr)malloc(sizeof(Qnode));
+    if (!q.front) exit (0);
+    q.front=&q;
     return 0;
 }
 //push a element into queue
@@ -53,7 +49,7 @@ struct MemBlock * allocateBuff(long buffSize)
  * @date 2016/10/16
 **/
 	linkQueue *q;
- 	initQueue (q);
+ 	//initQueue (q);
 	struct MemBlock pofm;
     //pofm = malloc(buffSize+1);
     //initQueue(qofm);
