@@ -57,7 +57,7 @@ struct MemBlock * allocateBuff(long buffSize)
  //buffPageNum = buffSize/
 }   
 
-int queryFreeBuff(struct MenBlcok *pofm,struct SysFile *sf,linkQueue *q,long fileid,long pageno)
+int queryFreeBuff(struct MenBlcok *pofm,struct SysFile *sf,linkQueue q,long fileid,long pageno)
 {
 /**
  * @brief 查找一个空闲内存块
@@ -69,16 +69,16 @@ int queryFreeBuff(struct MenBlcok *pofm,struct SysFile *sf,linkQueue *q,long fil
  * @date 2016/10/16 
  **/
     long i=0;
-    if(q->buffsize<32)
+    if(q.buffsize<32)
     {
-        q->rear->next=(QueuePtr) malloc (sizeof (Qnode));
-        return q->rear->next;
+        q.rear->next=(QueuePtr) malloc (sizeof (Qnode));
+        return q.rear->next;
     }
     else
         buffSwith(pofm,sf,q,fileid,pageno);
 } 
 
-int buffSwith(struct MemBlock *pofm,struct SysFile *sf,linkQueue *q,long fileid,long pageno)
+int buffSwith(struct MemBlock *pofm,struct SysFile *sf,linkQueue q,long fileid,long pageno)
 {
 /**
  * @brief 淘汰一个内存块，并从文件读入一个新块
@@ -89,14 +89,14 @@ int buffSwith(struct MemBlock *pofm,struct SysFile *sf,linkQueue *q,long fileid,
  * @author Andy
  * @date 2016/10/16 
 **/
-    long tmppageno= q->front->data.pageno;
-    if(q->buffsize==32)
+    long tmppageno= q.front->data.pageno;
+    if(q.buffsize==32)
     {
-        if(q->front->data.isedit == 1)
+        if(q.front->data.isedit == 1)
         {
-            char *filename = sf->files[q->front->data.fileid].fileName;
+            char *filename = sf->files[q.front->data.fileid].fileName;
             FILE *fp=fopen(filename, "wb");
-            fseek(fp, q->front->data.pageno*SIZE_PER_PAGE, SEEK_SET);
+            fseek(fp, q.front->data.pageno*SIZE_PER_PAGE, SEEK_SET);
             fwrite(pofm->data, sizeof(pofm->data), 1, fp );
             //ch = '\0';
             fclose(fp);
@@ -105,7 +105,7 @@ int buffSwith(struct MemBlock *pofm,struct SysFile *sf,linkQueue *q,long fileid,
     }
     else
     {
-        readPageFromFile(pageno,fileid,q->rear,sf);
+        readPageFromFile(pageno,fileid,q.rear,sf);
 
     }
     //QueuePtr p;
