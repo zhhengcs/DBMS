@@ -2,7 +2,7 @@
 #include "stdlib.h"
 #include "string.h"
 #include "memblock.h"
-#include "datafiles.c"
+#include "structfile.h"
 //initial a queue
 int initQueue (linkQnode *q)
 {
