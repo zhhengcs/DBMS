@@ -3,6 +3,7 @@
 #define Max_File_Number 100
 #define Max_Page_Per_File 1024
 #define SIZE_BUFF 32
+#include "io.h"
 //#define Page_Per_Segment 128 
 
 #define TRUE 1
@@ -54,11 +55,19 @@ struct mapTable                 //逻辑地址到物理地址的映射表
 	long segmentNo;           //段号 
 	long pageAvaiOfSegment;		//当前段有多少可用的页
 }; */
+
+struct EMP
+{
+	int eno;
+	char ename[20];
+};
+ 
 struct Page
 {
    int pageID;	//page ID 
-   int fileID;  //file ID 
-   long sizeOfhead;           // 头head 的大小  
    long free_size;
    long recordNumber;         //Page里面有多少记录
+   struct EMP emp[340];
 };
+
+

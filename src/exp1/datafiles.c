@@ -1,7 +1,6 @@
 #include "stdio.h"
 #include "structfile.h"
-#include "displayDB.c"
-#include "io.h"
+//#include "displayDB.c"
 
 
 /**
@@ -14,23 +13,18 @@
  * @date 2016/10/16 
  **/
  
- struct student
- {
- 	char id[11];
- 	char name[10];
- };
- 
+
  int isFileExist(char *fileName)
  {
- /*
- 	判断给定的文件是否存在，存在返回TRUE, 否则返回FALSE
- */
+
+ 	//判断给定的文件是否存在，存在返回TRUE, 否则返回FALSE
+
 	if( !(access(fileName,0)) ) 
 		return TRUE;
 	else 
 		return FALSE;
  }
- 
+
  int createSysFile(char sysFileName[40], long fileSize)
  {
 /**
@@ -158,11 +152,19 @@ int saveSysFile(struct SysFile *sf1)
  	return 0;
  };
  
-
- int writePageToFile(struct Page page1)
+ int getFreePage(long fid, struct SysFile *sf)
+ {
+ 	readSysFile(sf);
+ 	char *filename;
+	filename = filename=sf->files[fid].fileName;
+	FILE *fp;
+	fp=fopen(filename, "rb+");
+ };
+ 
+ int writeNewPageToFile(struct Page page1, long fid, struct SysFile *sf)
  {
 /**
- * @brief 写数据文件 
+ * @brief 写数据文件
  *
  * @param 
  * @return  int 
@@ -170,17 +172,15 @@ int saveSysFile(struct SysFile *sf1)
  * @author Andy
  * @date 2016/10/16 
  **/
- printf("Write a page to file.\n");
+ 	printf("Write a page to file.\n");
  	FILE *fp;
- 	struct student s1;
-
-	strcpy( s1.id, "2016000669");
- 	strcpy( s1.name, "冷友方");
- 	fp=fopen("datafile1.dbf", "rb+");
+ 	char *filename;
+ 	filename=sf->files[fid].fileName;
+ 	fp=fopen(filename, "wb+");
  	fseek(fp, SIZE_PER_PAGE, SEEK_SET);
-	fwrite(&s1, sizeof(struct student), 1, fp ); //把数据写回文件 
+	fwrite(&page1, SIZE_PER_PAGE, 1, fp ); //把数据写回文件 
  	fclose(fp);
- }; 
+ };
 
 
  int readPageFromFile(long file_id, long pageno, struct MemBlock *pofm, struct SysFile *sf1)
@@ -194,7 +194,8 @@ int saveSysFile(struct SysFile *sf1)
  * @author Andy
  * @date 2016/10/16 
  **/
- 	printf("Read a page from file.\n");
+ 	/* 
+	printf("Read a page from file.\n");
 	FILE *fp;
  	struct student s2;
  	struct DataFileHead df2;
@@ -206,6 +207,7 @@ int saveSysFile(struct SysFile *sf1)
  	fseek(fp, SIZE_PER_PAGE*pageno, SEEK_SET);
 	fread(pofm, SIZE_PER_PAGE, 1,fp);//把文件内容读入到缓存
 	fclose(fp);
+	*/ 
  };
  
 
@@ -240,3 +242,8 @@ int DisplayDBInfo(struct SysFile *sf1)
 	DisplayDBInfo(&sf1);
  };
  
+ int initNewPage(struct Page *page1)
+ {
+	page1->free_size = SIZE_PER_PAGE- 100;
+	page1->recordNumber = 0;
+ }
