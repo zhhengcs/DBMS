@@ -1,6 +1,8 @@
 #include "stdio.h"
-#include "structfile.c"
+#include "structfile.h"
 #include "displayDB.c"
+#include "io.h"
+
 
 /**
  * @brief 创建数据文件，读写数据文件 
@@ -18,6 +20,17 @@
  	char name[10];
  };
  
+ int isFileExist(char *fileName)
+ {
+ /*
+ 	判断给定的文件是否存在，存在返回TRUE, 否则返回FALSE
+ */
+	if( !(access(fileName,0)) ) 
+		return TRUE;
+	else 
+		return FALSE;
+ }
+ 
  int createSysFile(char sysFileName[40], long fileSize)
  {
 /**
@@ -33,28 +46,66 @@
  	char ch;
  	struct SysFile sf1;
 	
-	/** 初始化文件头信息 **/ 
-	sf1.sizePerPage = SIZE_PER_PAGE;
- 	sf1.fileNumber = 1;  //初使化数据库时，数据文件个数为1
- 	/** 初始化文件头信息 **/
- 	
- 	printf("Create the system file.\n");
- 	fp=fopen(sysFileName, "wb");
- 	
- 	struct FileHead file1;
- 	file1.file_deleted = 0;
- 	strcpy(file1.fileName,sysFileName);
- 	sf1.files[0]=file1;
- 	
- 	fwrite(&sf1, sizeof(struct SysFile), 1, fp );
-	fseek( fp, (fileSize/sf1.sizePerPage)*sf1.sizePerPage, SEEK_SET);	//创建一个数据文件 
-	ch = '\0';
-	fwrite(&ch, sizeof(char), 1, fp);
- 	fclose(fp);
- 	printf("Create the system file successfully.\n");
+	if(isFileExist(sysFileName) == FALSE)
+	{
+		/** 初始化文件头信息 **/ 
+		sf1.sizePerPage = SIZE_PER_PAGE;
+		sf1.buffNum = SIZE_BUFF; 
+	 	sf1.fileNumber = 1;  //初使化数据库时，数据文件个数为1
+	 	
+	 	fp=fopen(sysFileName, "wb");
+	 	
+	 	struct FileMeta file1;
+	 	file1.file_deleted = 0;
+	 	strcpy(file1.fileName,sysFileName);
+	 	sf1.files[0]=file1;
+	 	
+	 	fwrite(&sf1, sizeof(struct SysFile), 1, fp );
+	 	rewind(fp);
+		fseek( fp, (fileSize/SIZE_PER_PAGE)*SIZE_PER_PAGE, SEEK_SET);	//指针指向文件未尾 
+		ch = '\0';
+		fwrite(&ch, sizeof(char), 1, fp);
+	 	fclose(fp);
 
+	}
  	return 0;
  };
+ 
+int saveSysFile(struct SysFile *sf1)
+ {
+/**
+ * @brief 保存系统文件 
+ *
+ * @param 
+ * @return  int 
+ *
+ * @author Andy
+ * @date 2016/10/22 
+ **/
+	FILE *fp;
+ 	fp=fopen("../data/system01.dbf", "rb+");
+ 	rewind(fp);
+ 	fwrite(sf1, sizeof(struct SysFile), 1, fp ); //把数据写回文件 
+	fclose(fp);
+ }
+ 
+ int readSysFile(struct SysFile *sf1)
+ {
+/**
+ * @brief 读系统文件 
+ *
+ * @param 
+ * @return  int 
+ *
+ * @author Andy
+ * @date 2016/10/22 
+ **/
+	FILE *fp;
+ 	fp=fopen("../data/system01.dbf", "rb");
+ 	rewind(fp);
+ 	fread(sf1, sizeof(struct SysFile),1,fp);//把文件内容读入到缓存
+	fclose(fp);
+ }
  
  int createDataFile(char dataFileName[40], long fileSize, struct SysFile *sf1)
  {
@@ -69,31 +120,35 @@
  **/
  	FILE *fp;
  	char ch;
- 	struct DataFile df1;
-	
-	/** 初始化文件头信息 **/ 
-	df1.pageOfFile = fileSize/8192;
- 	df1.freeCount = fileSize/8192-1;
-	df1.pageDataMemoryHead = 2; 
- 	/** 初始化文件头信息 **/
- 	
- 	printf("Create datafile.\n");
- 	fp=fopen(dataFileName, "wb");
- 	
- 	fwrite(&df1, sizeof(struct DataFile), 1, fp );
-	fseek( fp, df1.pageOfFile*SIZE_PER_PAGE, SEEK_SET);	//创建一个数据文件 
-	ch = '\0';
-	fwrite(&ch, sizeof(char), 1, fp);
- 	fclose(fp);
- 	
- 	
- 	
- 	//创建完数据文件之后，更改系统文件信息 
- 	sf1->fileNumber++;
- 	sf1->files[sf1->fileNumber-1].file_deleted = 0;
-	strcpy(&(sf1->files[sf1->fileNumber-1].fileName), dataFileName);
-	//puts(dataFileName);
- 	printf("Create datafile successfully.\n");
+ 	struct DataFileHead df1;
+	if(isFileExist(dataFileName) == FALSE)
+	{
+		/** 初始化文件头信息 **/ 
+		df1.pageOfFile = fileSize/SIZE_PER_PAGE;
+	 	df1.freeCount = fileSize/SIZE_PER_PAGE-1;
+		//df1.isPageFree[Max_Page_Per_File] = {'0'};  //初使化时所有的page都是空的 
+	 	/** 初始化文件头信息 **/
+	 	
+	 	fp=fopen(dataFileName, "wb");
+	 	
+	 	fwrite(&df1, sizeof(struct DataFileHead), 1, fp );	//写文件头信息 
+		fseek( fp, df1.pageOfFile*SIZE_PER_PAGE, SEEK_SET);	//创建一个数据文件 
+		ch = '\0';
+		fwrite(&ch, sizeof(char), 1, fp);
+	 	fclose(fp);
+	 	
+	 	
+	 	//创建完数据文件之后，更改系统文件信息 
+	 	struct FileMeta df;
+	 	df.file_id=sf1->fileNumber;
+	 	df.file_deleted = 0;
+	 	strcpy(df.fileName, dataFileName);
+	 	
+	 	sf1->files[df.file_id] = df;
+	 	sf1->fileNumber++;
+	 	
+		saveSysFile(sf1);
+	}
  	return 0;
  };
  
@@ -116,7 +171,7 @@
 	strcpy( s1.id, "2016000669");
  	strcpy( s1.name, "冷友方");
  	fp=fopen("datafile1.dbf", "rb+");
- 	fseek(fp, 8192, SEEK_SET);
+ 	fseek(fp, SIZE_PER_PAGE, SEEK_SET);
 	fwrite(&s1, sizeof(struct student), 1, fp ); //把数据写回文件 
  	fclose(fp);
  }; 
@@ -136,14 +191,14 @@
  	printf("Read a page from file.\n");
 	FILE *fp;
  	struct student s2;
- 	struct DataFile df2;
+ 	struct DataFileHead df2;
  	char *filename;
 	filename = sf1->files[file_id].fileName;
  	fp=fopen(filename, "rb");
  	rewind(fp);
 
- 	fseek(fp, 8192*pageno, SEEK_SET);
-	fread(pofm, 8192, 1,fp);//把文件内容读入到缓存
+ 	fseek(fp, SIZE_PER_PAGE*pageno, SEEK_SET);
+	fread(pofm, SIZE_PER_PAGE, 1,fp);//把文件内容读入到缓存
 	fclose(fp);
 
 	/*
@@ -158,32 +213,15 @@
 	*/
  };
  
- 
- int readSysFile(struct SysFile *sf1)
- {
-/**
- * @brief 读系统文件 
- *
- * @param 
- * @return  int 
- *
- * @author Andy
- * @date 2016/10/22 
- **/
- 	printf("Read system file.\n");
-	FILE *fp;
- 	fp=fopen("../data/system01.dbf", "rb");
- 	rewind(fp);
- 	fread(sf1, sizeof(struct SysFile),1,fp);//把文件内容读入到缓存
-	fclose(fp);
- }
+
  
 int DisplayDBInfo(struct SysFile *sf1)
 {
 	printf("************Sys file information*************\n");
-	printf("Data file number of db: %d\n", sf1->fileNumber);
 	printf("Size per page: %d\n", sf1->sizePerPage);
-	printf("File of the db:\n");
+	printf("Buffer size: %d\n", sf1->buffNum);
+	printf("\nData file number of db: %d\n", sf1->fileNumber);
+	printf("File list:\n");
 	
 	int i;
 	for(i=0; i<=sf1->fileNumber-1;i++)
@@ -197,16 +235,16 @@ int DisplayDBInfo(struct SysFile *sf1)
 
  int initDB()
  {
- 	createSysFile("../data/system01.dbf", 1024*1024);
+	//初使化数据库文件 
+ 	createSysFile("../data/system01.dbf", 2*SIZE_PER_PAGE);
  	struct SysFile sf1;
- 	readSysFile(&sf1); 
- 	DisplayDBInfo(&sf1);
- 	
-	createDataFile("../data/dataFile01.dbf", 1024*1024, &sf1);
+ 	readSysFile(&sf1);
+	createDataFile("../data/datafile01.dbf", 2*SIZE_PER_PAGE, &sf1);
+	saveSysFile(&sf1);
+	
+	//初使化缓存 
 	
 	DisplayDBInfo(&sf1);
-	//writePageToFile();
-	//readDataFile();
  };
  
  

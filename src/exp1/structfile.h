@@ -1,15 +1,21 @@
 #define SIZE_PER_PAGE 8192
 #define Max_Table_Size 100
-#define Max_File_Number 1000 
-//#define SIZE_BUFF 32
+#define Max_File_Number 100
+#define Max_Page_Per_File 1024
+#define SIZE_BUFF 32
 //#define Page_Per_Segment 128 
 
+#define TRUE 1
+#define FALSE 0
 
-struct FileHead
+#define OK 1
+#define ERROR 0 
+
+struct FileMeta
 {
 	int file_deleted;
 	long file_id;
-	char fileName[64];
+	char fileName[64];  //每个文件名字最长为64位 
 };
 
 struct SysFile
@@ -19,11 +25,12 @@ struct SysFile
 系统文件中存放了一些系统信息，还存放了各个数据文件的地址。 
 */  
 	long sizePerPage;           //每一个页的大小
+	long buffNum;				//缓冲区块数 
 	long fileNumber;			//整个数据库包含的文件个数 
-    struct FileHead files[Max_File_Number]; 	//整个数据库所包含的所有数据文件 
+    struct FileMeta files[Max_File_Number]; 	//整个数据库所包含的所有数据文件 
 };
 
-struct DataFile  
+struct DataFileHead
 {
 /*
 定义数据文件 
@@ -33,10 +40,7 @@ struct DataFile
   
   //空闲空间管理 
 	long freeCount;             //当前可用的页数 
-	long bitMapAddr;			//bitMap在存储文件中的地址
-	long sizeBitMap;			//bitMap的大小,以字节为单位
-	long *data;          //指向当前的地址
-    char *pageDataMemoryHead;   //数据区域头指针
+	char isPageFree[Max_Page_Per_File];	//存放每一个page是否为空 
 };
 /*
 struct mapTable                 //逻辑地址到物理地址的映射表 
@@ -53,7 +57,7 @@ struct mapTable                 //逻辑地址到物理地址的映射表
 struct Page
 {
    int pageID;	//page ID 
-   int fileID;  //file ID
+   int fileID;  //file ID 
    long sizeOfhead;           // 头head 的大小  
    long free_size;
    long recordNumber;         //Page里面有多少记录
