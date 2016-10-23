@@ -36,7 +36,7 @@ struct DataFileHead
 定义数据文件 
 */ 
 	long fileId;				//数据文件ID 
-	long pageOfFile;			//文件的大小，包含多少页 
+	long pageOfFile;			//文件总共包含多少页 
   
   //空闲空间管理 
 	long freeCount;             //当前可用的页数 

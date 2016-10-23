@@ -126,7 +126,13 @@ int saveSysFile(struct SysFile *sf1)
 		/** 初始化文件头信息 **/ 
 		df1.pageOfFile = fileSize/SIZE_PER_PAGE;
 	 	df1.freeCount = fileSize/SIZE_PER_PAGE-1;
-		//df1.isPageFree[Max_Page_Per_File] = {'0'};  //初使化时所有的page都是空的 
+		
+		int i;
+		for(i=0; i<Max_Page_Per_File; i++)
+		{
+			df1.isPageFree[i] = '0';  //初使化时所有的page都是空的 
+		}
+
 	 	/** 初始化文件头信息 **/
 	 	
 	 	fp=fopen(dataFileName, "wb");
@@ -177,7 +183,7 @@ int saveSysFile(struct SysFile *sf1)
  }; 
 
 
- int readDataFile(long pageno, long file_id, struct MemBlock *pofm, struct SysFile *sf1)
+ int readPageFromFile(long file_id, long pageno, struct MemBlock *pofm, struct SysFile *sf1)
  {
 /**
  * @brief 读数据文件 
@@ -200,17 +206,6 @@ int saveSysFile(struct SysFile *sf1)
  	fseek(fp, SIZE_PER_PAGE*pageno, SEEK_SET);
 	fread(pofm, SIZE_PER_PAGE, 1,fp);//把文件内容读入到缓存
 	fclose(fp);
-
-	/*
-	printf("************DB file information*************\n");
-	printf("Page of file: %d\n", df2.pageOfFile);
-	printf("Size per page: %d\n", SIZE_PER_PAGE);
-	printf("Number of free page: %d\n", df2.freeCount);
-	
-	printf("\n************Data information*************\n");
-	printf("Student id:%s\n", s2.id);
-	printf("Student name:%s\n", s2.name);
-	*/
  };
  
 
@@ -233,7 +228,7 @@ int DisplayDBInfo(struct SysFile *sf1)
 }
 
 
- int initDB()
+ int initDataFile()
  {
 	//初使化数据库文件 
  	createSysFile("../data/system01.dbf", 2*SIZE_PER_PAGE);
@@ -242,9 +237,6 @@ int DisplayDBInfo(struct SysFile *sf1)
 	createDataFile("../data/datafile01.dbf", 2*SIZE_PER_PAGE, &sf1);
 	saveSysFile(&sf1);
 	
-	//初使化缓存 
-	
 	DisplayDBInfo(&sf1);
  };
- 
  

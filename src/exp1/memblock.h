@@ -30,14 +30,14 @@ typedef struct Qnode
 {
     struct Memtag data;
     struct Qnode *next;
-} Queue,*QueuePtr;
+} Qnode,*QueuePtr;
 
 typedef struct
 {
     int buffsize;
     QueuePtr front;
     QueuePtr rear;
-}linkQnode;
+} linkQueue;
 
 
 
