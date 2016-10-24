@@ -122,13 +122,13 @@ int saveSysFile(struct SysFile *sf1)
 	 	df1.freeCount = fileSize/SIZE_PER_PAGE-1;
 		
 		int i;
+		df1.isPageFree[0]; 
 		for(i=0; i<Max_Page_Per_File; i++)
 		{
 			df1.isPageFree[i] = '0';  //初使化时所有的page都是空的 
 		}
-
 	 	/** 初始化文件头信息 **/
-	 	
+
 	 	fp=fopen(dataFileName, "wb");
 	 	
 	 	fwrite(&df1, sizeof(struct DataFileHead), 1, fp );	//写文件头信息 
@@ -154,17 +154,38 @@ int saveSysFile(struct SysFile *sf1)
  
  int getFreePage(long fid, struct SysFile *sf)
  {
- 	readSysFile(sf);
+ 	long freePageNo;
+ 	struct DataFileHead dfh;
  	char *filename;
+ 	
+	readSysFile(sf); 	
 	filename = filename=sf->files[fid].fileName;
 	FILE *fp;
 	fp=fopen(filename, "rb+");
+	fread(&dfh, SIZE_PER_PAGE, 1,fp);	//读取文件头信息
+	
+	if(dfh.freeCount == 0)  //此文件已经没有空闲空 
+	{
+		return -1;   //没有空闲块的情况下，返回-1; 
+	}
+	else
+	{
+		int i;
+		for(i=1; i<= dfh.pageOfFile; i++)
+		{
+			if(dfh.isPageFree == TRUE)
+				return i;	//找到第一个空闲块时，返回块号 
+		} 	
+	}
+
+	
+	return freePageNo;
  };
  
  int writeNewPageToFile(struct Page page1, long fid, struct SysFile *sf)
  {
 /**
- * @brief 写数据文件
+ * @brief 写一个新块到数据文件
  *
  * @param 
  * @return  int 
