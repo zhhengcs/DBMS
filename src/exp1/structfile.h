@@ -70,4 +70,3 @@ struct Page
    struct EMP emp[340];
 };
 
-
