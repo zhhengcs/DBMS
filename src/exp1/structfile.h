@@ -60,6 +60,7 @@ struct EMP
 {
 	int eno;
 	char ename[20];
+	float weight;
 };
  
 struct Page
@@ -67,6 +68,6 @@ struct Page
    int pageID;	//page ID 
    long free_size;
    long recordNumber;         //Page里面有多少记录
-   struct EMP emp[340];
+   struct EMP emp[247];
 };
 

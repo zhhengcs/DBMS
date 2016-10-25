@@ -3,15 +3,18 @@
 #include "memblock.h"
 #include "structfile.h"
 //initial a queue
-int initQueue (linkQueue *q)
+/*int initQueue (struct linkQueue *q)
 {
     q->front=q->rear=(QueuePtr)malloc(sizeof(Qnode));
-	//q->front = q->rear= (QueuePtr)malloc(sizeof(Qnode));
+	q->queueSize = 1;
+	q->front->buffPageId = 0;
+	q->front->buffPageId = 0;
     if (!q->front) exit (0);
     return 0;
 }
+*/
 
-struct MemBlock * allocateBuff(long buffSize)
+int allocateBuff(struct MemBlock *buff)
 {
 /**
  * @brief  分配一大块空闲内存，该内存包含很多内存page
@@ -22,19 +25,30 @@ struct MemBlock * allocateBuff(long buffSize)
  * @author Andy
  * @date 2016/10/16
 **/
-	struct MemBlock *pofm;
-    pofm = malloc(buffSize+1);
-    return pofm;
-}   
+	printf("Init the buffer.\n");
+	
+	//struct MemBlock *pofm1;	
+	//pofm1 = malloc(sizeof(struct MemBlock));  //分配内存 
+	/*
+	struct linkQueue *Q; //初始化队列 
+	Q = malloc(sizeof(struct linkQueue)); 
+	initQueue(Q);
+	buff->linkQ = malloc(sizeof(struct linkQueue));
+	*/
+	buff -> currentBuffPage = -1;
+	
+	int i;  //初始化buff信息 MAX_BUFF_SIZE
+	for( i=0; i<MAX_BUFF_SIZE; i++ ) {
+ 		buff->blockno[i].fileid = -1; 
+		buff->blockno[i].pageno = -1;
+		buff->blockno[i].isedit = 0;
+	}
+	
+	//buff = pofm1;
+	printf("Init the buffer successfully.\n");
+};
 
-/*int buffInsert(struct MemBlock *plfm,struct SysFile *sf,linkQueue *q,long fileid,long pageno)
-{
-    char *filename = sf->files[q->front->data.fileid].fileName;
-    FILE *fp =fopen(filename,"r");
-}*/
-
-int buffSwith(struct MemBlock *pofm,struct SysFile *sf,linkQueue *q)
-       // int buffSwith(struct MemBlock *pofm,struct SysFile *sf,linkQueue *q,long fileid,long pageno)
+int buffSwith(struct MemBlock *buff,struct SysFile *sf)
 {
 /**
  * @brief 淘汰一个内存块，并从文件读入一个新块
@@ -43,43 +57,24 @@ int buffSwith(struct MemBlock *pofm,struct SysFile *sf,linkQueue *q)
  * @return  int 
  *
  * @author Andy
- * @date 2016/10/16 
+ * @date 2016/10/16
 **/
-    long tmppageno= q->front->data.pageno;
-    if(q->buffsize==32)
-    {
-        if(q->front->data.isedit == 1)
+    //if(buff->linkQ->queueSize == MAX_BUFF_SIZE)
+    //{
+   /* 	buff->currentBuffPage++;
+        if(buff->blockno[buff->currentBuffPage].isedit == 1)
         {
-            /*char *filename = sf->files[q->front->data.fileid].fileName;
-            FILE *fp=fopen(filename, "wb");
-            fseek(fp, q->front->data.pageno*SIZE_PER_PAGE, SEEK_SET);
-            fwrite(pofm->data, sizeof(pofm->data), 1, fp );
-            //ch = '\0';
-            fclose(fp);*/
-            内存写回文件函数调用
+            //write the front page to disk; 
         }
-        else
-            return q->front;
-        //readPageFromFile(pageno,fileid,pofm,sf);
-    }
-    else
-    {
-        //(pageno,fileid,q.rear,sf);
-        return q->rear;
-
-    }
-    //QueuePtr p;
-    //if (q -> front = q -> rear) return;
-    //p = q -> front -> next;
-    //*item = p -> data;
-    //q -> front -> next = p -> next;
-    //if (q -> rear == p)
-     //   q -> rear = q -> front;
-    //free (p);
-
+   */
+		/*
+		buff->linkQ->front = buff->linkQ->front->next;
+		buff->linkQ->rear = buff->linkQ->rear->next;
+		*/
+    //}
 }
 
-struct Qnode *queryFreeBuff(struct MemBlock *pofm,struct SysFile *sf,linkQueue *q,long fileid,long pageno)
+int queryFreeBuff(struct MemBlock *buff,struct SysFile *sf)
 {
 /**
  * @brief 查找一个空闲内存块
@@ -90,43 +85,18 @@ struct Qnode *queryFreeBuff(struct MemBlock *pofm,struct SysFile *sf,linkQueue *
  * @author Andy
  * @date 2016/10/16
  **/
-    long i=0;
-    if(q->buffsize<32)
-    {
-        q->rear->next=(QueuePtr) malloc (sizeof (Qnode));
-        q->rear->next->data.pageno=pageno;
-        return q->rear->next;
-        //buffInsert(pofm,sf,q,fileid,pageno);
-    }
-    else
-    {
-        buffSwith(pofm,sf,q);
 
-    }
-
+    buff->currentBuffPage = (buff->currentBuffPage + 1)%MAX_BUFF_SIZE;
+        if(buff->blockno[buff->currentBuffPage].isedit == 1)
+        {
+            //write the front page to disk; 
+        }
+    return buff->currentBuffPage;
 }
 
-
-int initMemory()
+/*
+struct MemBlock initMemory()
 {
-	printf("Initial the buffer!\n");
-	//allocateBuff(); 
-	//struct MemBlock *pofm;
-	//struct linkQnode *qofm;
-	//pofm = allocateBuff(32*SIZE_PER_PAGE);
-	//queryFreeBuff(struct MenBlcok *pofm,struct SysFile *sf,linkQnode *q,long fileid,long pageno)
-	/*
-	printf("Read a page from file.\n");
-	FILE *fp;
-	
- 	char *filename;
-	filename = "../data/abc.txt";
- 	fp=fopen(filename, "rb");
-	fread(pofm, SIZE_PER_PAGE, 1, fp);//把文件内容读入到缓存
-	fclose(fp);
-	
-	fp=fopen("../data/datafile2.dbf", "wb+");
-	fwrite(pofm, SIZE_PER_PAGE, 1, fp ); //把数据写回文件 
- 	fclose(fp);
- 	*/
+	return allocateBuff();
 }
+*/

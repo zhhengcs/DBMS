@@ -182,7 +182,7 @@ int saveSysFile(struct SysFile *sf1)
 	return freePageNo;
  };
  
- int writeNewPageToFile(struct Page page1, long fid, struct SysFile *sf)
+ int writeNewPageToFile(struct Page page1, long fid, struct SysFile *sf, FILE *fp)
  {
 /**
  * @brief 写一个新块到数据文件
@@ -194,13 +194,15 @@ int saveSysFile(struct SysFile *sf1)
  * @date 2016/10/16 
  **/
  	printf("Write a page to file.\n");
- 	FILE *fp;
- 	char *filename;
- 	filename=sf->files[fid].fileName;
- 	fp=fopen(filename, "wb+");
+ 	//FILE *fp;
+ 	/*FILE *fp;
+ 	char *filename;*/
+ 	/*filename=sf->files[fid].fileName;*/
+ 	/*fp=fopen(filename, "wb+");*/
+ 	rewind(fp);
  	fseek(fp, SIZE_PER_PAGE, SEEK_SET);
 	fwrite(&page1, SIZE_PER_PAGE, 1, fp ); //把数据写回文件 
- 	fclose(fp);
+ 	/*fclose(fp);*/
  };
 
 
