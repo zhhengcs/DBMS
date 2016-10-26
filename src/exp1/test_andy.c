@@ -2,22 +2,6 @@
 #include "structfile.h"
 #include "memblock.h"
 
-struct student
-{
-	int id;
-};
-
-
-int init(struct student *s1)
-{
-	/*
-	struct student *s2;
-	s1->id =2;
-	*/
-	
-	s1->id = 2;
-}
-
 int main()
 {
 
@@ -30,31 +14,20 @@ int main()
 	DisplayDBInfo(&sf1);
 
 		
-	//缓存 
+	//缓存初使化 
 	struct MemBlock *buff;
 	buff = malloc(sizeof(struct MemBlock));
-	
-	printf("aaaa");
 	allocateBuff(buff);	  //缓冲区初使化
-	
-	printf("ok");
+
+	//查找空闲缓冲区演示 
 	int i, j;
 	for(i=0; i<=40; i++)
 	{
 		j = queryFreeBuff(buff, &sf1);
 		printf("%d, ", j);
 	};
+	printf("\n");
 	
 	//写入数据 
 	writeDate(&sf1, buff, 1);
-	
-
-
-
-/*
-struct student *s1;
-//s1->id = 1;
-init(s1);
-*/
-
 }

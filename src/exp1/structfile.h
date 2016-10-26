@@ -2,7 +2,6 @@
 #define Max_Table_Size 100
 #define Max_File_Number 100
 #define Max_Page_Per_File 1024
-#define SIZE_BUFF 32
 #include "io.h"
 //#define Page_Per_Segment 128 
 
@@ -43,18 +42,7 @@ struct DataFileHead
 	long freeCount;             //当前可用的页数 
 	char isPageFree[Max_Page_Per_File];	//存放每一个page是否为空 
 };
-/*
-struct mapTable                 //逻辑地址到物理地址的映射表 
-{
-	long *logic;                 //逻辑地址 
-	long *physical;              //物理地址 
-}maTable[Max_Table_Size];       
-*/
-/*struct segment                //段的定义 
-{
-	long segmentNo;           //段号 
-	long pageAvaiOfSegment;		//当前段有多少可用的页
-}; */
+
 
 struct EMP
 {

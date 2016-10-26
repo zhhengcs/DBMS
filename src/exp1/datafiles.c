@@ -1,6 +1,6 @@
 #include "stdio.h"
 #include "structfile.h"
-//#include "displayDB.c"
+#include "memblock.h"
 
 
 /**
@@ -28,7 +28,7 @@
  int createSysFile(char sysFileName[40], long fileSize)
  {
 /**
- * @brief 创建数据文件 
+ * @brief 创建系统文件 
  *
  * @param 
  * @return  int 
@@ -44,7 +44,7 @@
 	{
 		/** 初始化文件头信息 **/ 
 		sf1.sizePerPage = SIZE_PER_PAGE;
-		sf1.buffNum = SIZE_BUFF; 
+		sf1.buffNum = MAX_BUFF_SIZE; 
 	 	sf1.fileNumber = 1;  //初使化数据库时，数据文件个数为1
 	 	
 	 	fp=fopen(sysFileName, "wb");
@@ -178,7 +178,6 @@ int saveSysFile(struct SysFile *sf1)
 		} 	
 	}
 
-	
 	return freePageNo;
  };
  
