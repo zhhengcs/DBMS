@@ -23,7 +23,7 @@ typedef struct BPKeyTree
 	P_BPKeyNode treeRoot;
 	int rootFileId;//记录根节点的在文件中的标号，即id
 	int nodeNum;	//记录共有多少个节点
-	int keyNum;	    //记录共有多少个key 
+	long keyNum;	    //记录共有多少个key 
 	char treeFileName[100];		//用于存储B+树的节点文件的名字
 	FILE *pof;			//打开写入name文件时，使用  pointer of file
 	int firstLeaf;		//最小的数据所在的叶节点
