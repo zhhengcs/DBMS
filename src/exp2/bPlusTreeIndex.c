@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <bPlusTreeIndex.h>
+#include "bPlusTreeIndex.h"
 
 BPKeyTree indexBPKeyTree;		//全局变量，b+树
 
@@ -599,4 +599,3 @@ int main ()
 	endBPKeyTree();
 	return 0;
 }
-
