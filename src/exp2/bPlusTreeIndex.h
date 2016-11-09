@@ -26,5 +26,5 @@ typedef struct BPKeyTree
 	int keyNum;	    //记录共有多少个key 
 	char treeFileName[100];		//用于存储B+树的节点文件的名字
 	FILE *pof;			//打开写入name文件时，使用  pointer of file
-	int fistLeaf;		//最小的数据所在的叶节点
+	int firstLeaf;		//最小的数据所在的叶节点
 }BPKeyTree,*P_BPKeyTree;

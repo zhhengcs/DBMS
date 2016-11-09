@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include "bPlusTreeIndex.h"
 
-BPKeyTree indexBPKeyTree;		//全局变量，b+树
+BPKeyTree indexBPKeyTree;		//声明全局变量，b+树
 
 int saveNodeToFile(P_BPKeyNode kNode)
-{
+{//保存节点到文件 
 	fseek(indexBPKeyTree.pof, sizeof(BPKeyNode)*(kNode->nodeId - 1) + 2*sizeof(int), SEEK_SET);
 	fwrite(kNode, sizeof(BPKeyNode),1,indexBPKeyTree.pof);
 
@@ -12,14 +12,14 @@ int saveNodeToFile(P_BPKeyNode kNode)
 }
 
 int getNodeFromFile(P_BPKeyNode kNode, int nodeId)
-{
+{//从文件读取结点 
 	fseek(indexBPKeyTree.pof, (sizeof(BPKeyNode))*(nodeId - 1) + 2*sizeof(int), SEEK_SET);
 	fread(kNode, (sizeof(BPKeyNode)),1,indexBPKeyTree.pof);
 	return 0;
 }
 
 int displayNode(P_BPKeyNode kNode)
-{//显示节点
+{//显示节点详细信息 
 	printf("%s  id:%d  next:%d  个数：%d\n" ,kNode->isLeaf?"是叶节点":"不是叶节点", kNode->nodeId, kNode->nextBrother, kNode->keyNumInNode);
 	int i;
 	for(i = 0; i < kNode->keyNumInNode; i++)
@@ -36,11 +36,10 @@ int createIndexBPKeyTree (char *tableName, char *attr)
 	//Initial the root node
 	P_BPKeyNode rootNode;
 
-
 	indexBPKeyTree.treeRoot = (P_BPKeyNode)malloc(sizeof(BPKeyNode));
 	indexBPKeyTree.nodeNum = 1;
 	indexBPKeyTree.keyNum = 0;
-	indexBPKeyTree.fistLeaf = 1;
+	indexBPKeyTree.firstLeaf = 1;
 	//Start: the file path of the index tree
 	//memcpy(indexBPKeyTree.treeFileName, "../data/", sizeof("../data/"));
 	strcpy(indexBPKeyTree.treeFileName, "../data/");
@@ -68,9 +67,9 @@ int createIndexBPKeyTree (char *tableName, char *attr)
 }
 
 int initIndexBPKeyTree(char *tableName, char *attr)
-{//初始化BPTree，打开相应文件，fp记录；为root分配内存可以存储一个节点的内存，并读入根节点
+{//初始化BPTree，打开相应文件pof；为root分配内存可以存储一个节点的内存，并读入根节点
 	indexBPKeyTree.treeRoot = (P_BPKeyNode)malloc(sizeof(BPKeyNode));
-	indexBPKeyTree.fistLeaf = 1;
+	indexBPKeyTree.firstLeaf = 1;
 
 	//memcpy(indexBPKeyTree.treeFileName, "../data/", sizeof("../data/"));
 	strcpy(indexBPKeyTree.treeFileName, "../data/");
@@ -87,50 +86,48 @@ int initIndexBPKeyTree(char *tableName, char *attr)
 
 
 int divideBPKeyNode (P_BPKeyNode newkNode, P_BPKeyNode fullkNode, int i)
-{//节点的分裂，要求p节点至少还能插入一个节点，c节点是满的，即n为2*T;
+{//节点的分裂，要求newkNode节点至少还能插入一个节点，fullkNode节点是满的，即n为2*Degree;
 	int j;
-	P_BPKeyNode b;
-	b = (P_BPKeyNode)malloc(sizeof(BPKeyNode));
-	b->isLeaf = fullkNode->isLeaf;
-	b->keyNumInNode = Degree;
-	b->nodeId = indexBPKeyTree.nodeNum+1;	//为b赋值id号，用于表示该节点，，同时id号就是这个节点在文件的位置
-	b->nextBrother = fullkNode->nextBrother;			//为b的next赋值，即原来的c节点的next
-	//将c节点的后半部分关键字复制给b
+	P_BPKeyNode tempNode;
+	tempNode = (P_BPKeyNode)malloc(sizeof(BPKeyNode));
+	tempNode->isLeaf = fullkNode->isLeaf;
+	tempNode->keyNumInNode = Degree;
+	tempNode->nodeId = indexBPKeyTree.nodeNum+1;	//为b赋值id号，用于表示该节点，，同时id号就是这个节点在文件的位置
+	tempNode->nextBrother = fullkNode->nextBrother;			//为b的next赋值，即原来的fullkNode节点的next
+	//将fullkNode节点的后半部分关键字复制给tempNode
 	for (j = 0; j < Degree; j++)
 	{
-		b->keyInNode[j] = fullkNode->keyInNode[j+Degree];
-		b->children[j] = fullkNode->children[j+Degree];
+		tempNode->keyInNode[j] = fullkNode->keyInNode[j+Degree];
+		tempNode->children[j] = fullkNode->children[j+Degree];
 	}
 
-	//至此b节点的对应元素已经建立好了，但还需要写入文件
-
 	indexBPKeyTree.nodeNum++;
-	fullkNode->keyNumInNode = Degree;	//c节点的关键字数目减半
-	fullkNode->nextBrother = b->nodeId;
+	fullkNode->keyNumInNode = Degree;	//fullkNode节点的关键字数目减半
+	fullkNode->nextBrother = tempNode->nodeId;
 
-	//将p节点的i之后的节点后移
+	//将newkNode节点的i之后的节点后移
 	for (j = newkNode->keyNumInNode - 1; j > i; j--)
 	{
 		newkNode->keyInNode[j+1] = newkNode->keyInNode[j];
 		newkNode->children[j+1] = newkNode->children[j];
 	}
 	
-	//将b节点插入p中
-	newkNode->keyInNode[i+1] = b->keyInNode[0];
-	newkNode->children[i+1] = b->nodeId;
+	//将tempNode节点插入newkNode中
+	newkNode->keyInNode[i+1] = tempNode->keyInNode[0];
+	newkNode->children[i+1] = tempNode->nodeId;
 
-	newkNode->keyNumInNode++;	//p关键字个数加一
-	//写入p
+	newkNode->keyNumInNode++;	//newkNode关键字个数加一
+	//写入newkNode
 	saveNodeToFile(newkNode);
 	saveNodeToFile(fullkNode);
-	saveNodeToFile(b);
-	free(b);
+	saveNodeToFile(tempNode);
+	free(tempNode);
 	return 0;
 }
 
 
 int insertBPNodeNotFull(P_BPKeyNode kNode, KeyDataType key, int id)
-{//插入，要求s节点不是满的
+{//在节点中插入一个key，要求kNode节点不是满的
 
 	int i = kNode->keyNumInNode-1;
 
@@ -168,7 +165,7 @@ int insertBPNodeNotFull(P_BPKeyNode kNode, KeyDataType key, int id)
 			divideBPKeyNode(kNode, tmp, i);
 			if (key > kNode->keyInNode[i+1])
 				i++;
-			getNodeFromFile(tmp, kNode->children[i]);		//重新读取，有待优化
+			getNodeFromFile(tmp, kNode->children[i]);		//重新读取
 		}
 		insertBPNodeNotFull(tmp, key, id);
 		free(tmp);
@@ -208,7 +205,7 @@ Pointer equalSearch(P_BPKeyTree tree, KeyDataType key)
 }
 
 int rangeSearch (P_BPKeyTree tree, KeyDataType lowValue, KeyDataType highValue)
-{//范围查找，key值大于等于lowValue，小于等于highValue。返回范围内的个数，
+{//范围查找，key值大于等于lowValue，小于等于highValue。返回范围内的个数.
 	int i;
 	P_BPKeyNode r = tree->treeRoot;
 	Pointer *result;
@@ -292,7 +289,7 @@ int insertKeyInBPKeyTree (P_BPKeyTree tree, KeyDataType key, int id)
 
 		divideBPKeyNode (newRoot, currentRoot, 0);
 
-		//根变为s，所以将新根copy到tree->root指针所指向的内存。（tree->root将一直指向一片开辟了的内存，且时刻保存树根的整个节点）
+		//根变为newRoot，所以将新根copy到tree->root指针所指向的内存。（tree->root将一直指向一片开辟了的内存，且时刻保存树根的整个节点）
 		memcpy(tree->treeRoot, newRoot, sizeof(BPKeyNode));
 		tree->rootFileId = newRoot->nodeId;
 
@@ -304,17 +301,6 @@ int insertKeyInBPKeyTree (P_BPKeyTree tree, KeyDataType key, int id)
 	indexBPKeyTree.keyNum++;
 	return 0;
 }//insertBPNode
-
-
-int endBPKeyTree()
-{//将建立的树结束
-	fseek(indexBPKeyTree.pof, 0, SEEK_SET);
-	fwrite(&indexBPKeyTree.nodeNum, sizeof(int),1,indexBPKeyTree.pof);
-	fwrite(&indexBPKeyTree.rootFileId, sizeof(int),1,indexBPKeyTree.pof);
-	free(indexBPKeyTree.treeRoot);
-	fclose(indexBPKeyTree.pof);
-	return 0;
-}
 
 
 int replaceKeyInBPKeyTree(P_BPKeyTree tree, KeyDataType oldkey, KeyDataType newkey)
@@ -343,7 +329,7 @@ int replaceKeyInBPKeyTree(P_BPKeyTree tree, KeyDataType oldkey, KeyDataType newk
 	return 0;
 }
 
-int adjustToDel(P_BPKeyNode p, P_BPKeyNode x, int i)
+int adjustWhenDel(P_BPKeyNode p, P_BPKeyNode x, int i)
 {//p指向x的父节点，i指的是，x是p的下标
 	int j;
 	P_BPKeyNode left = NULL;
@@ -445,13 +431,14 @@ int adjustToDel(P_BPKeyNode p, P_BPKeyNode x, int i)
 	left = right = tmp = NULL;
 	return 0;
 }
-//调用这个函数是，参数节点p，必须满足相应的要求：
-//①如果p是根节点且是叶子节点，则没有要求
-//②如果p是根节点（非叶），则p节点的子节点个数不小于2（B+树本身就满足这个要求）。
-//③如果p是非根节点，则节点p的子节点个数必须大于T
 
 KeyDataType delKeyInBPNode(P_BPKeyNode kNode, KeyDataType key)
-{//以这个节点为起点，找到k并删除。要求确保k存在
+{//以这个节点为起点，找到key并删除。要求确保key存在
+//调用这个函数是，参数节点kNode，必须满足相应的要求：
+//1.如果kNode是根节点且是叶子节点，则没有要求
+//2.如果kNode是根节点（非叶），则kNode节点的子节点个数不小于2（B+树本身就满足这个要求）。
+//3.如果kNode是非根节点，则节点kNode的子节点个数必须大于T
+
 	int i;
 	int j;
 	i = kNode->keyNumInNode - 1;
@@ -459,7 +446,7 @@ KeyDataType delKeyInBPNode(P_BPKeyNode kNode, KeyDataType key)
 	while (kNode->keyInNode[i] > key)
 		i--;
 
-	//是叶节点(如果p本身又是根节点，则这个是情况①)
+	//是叶节点(如果kNode本身又是根节点，则这个是情况1)
 	if (kNode->isLeaf)
 	{
 		for (j = i; j < kNode->keyNumInNode-1; j++)
@@ -476,7 +463,7 @@ KeyDataType delKeyInBPNode(P_BPKeyNode kNode, KeyDataType key)
 	}//if
 	
 
-	//p是内节点
+	//kNode是内节点
 	P_BPKeyNode x;
 
 	x = (P_BPKeyNode)malloc(sizeof(BPKeyNode));
@@ -486,7 +473,7 @@ KeyDataType delKeyInBPNode(P_BPKeyNode kNode, KeyDataType key)
 		return delKeyInBPNode(x, key);
 	else			//x的子节点的个数等于T，需要调整
 	{
-		adjustToDel(kNode, x, i);
+		adjustWhenDel(kNode, x, i);
 		return delKeyInBPNode(x, key);
 	}//else
 	
@@ -497,7 +484,7 @@ int delKeyInBPTree(P_BPKeyTree tree, KeyDataType key)
 {//1.如果一个根节点同时又是叶节点，则没有子节点限制（这个子节点指向的不再是树的节点）
  //2.非叶根节点至少保持有两个子节点，其他的节点至少有T个子节点。 
  
-	if (equalSearch(tree, key) < 0)	//检查是否有k这个关键字
+	if (equalSearch(tree, key) < 0)	//检查是否有key这个关键字
 		return -1;
 
 	P_BPKeyNode currentRoot = tree->treeRoot;
@@ -512,6 +499,17 @@ int delKeyInBPTree(P_BPKeyTree tree, KeyDataType key)
 	}
 	currentRoot = NULL;
 	
+	return 0;
+}
+
+
+int endBPKeyTree()
+{//将建立的树结束
+	fseek(indexBPKeyTree.pof, 0, SEEK_SET);
+	fwrite(&indexBPKeyTree.nodeNum, sizeof(int),1,indexBPKeyTree.pof);
+	fwrite(&indexBPKeyTree.rootFileId, sizeof(int),1,indexBPKeyTree.pof);
+	free(indexBPKeyTree.treeRoot);
+	fclose(indexBPKeyTree.pof);
 	return 0;
 }
 
@@ -531,7 +529,7 @@ int main ()
 	insertKeyInBPKeyTree(&indexBPKeyTree, 10, i++);
 	insertKeyInBPKeyTree(&indexBPKeyTree, 90, i++);
 	insertKeyInBPKeyTree(&indexBPKeyTree, 40, i++);
-	insertKeyInBPKeyTree(&indexBPKeyTree, 100, i++);
+	insertKeyInBPKeyTree(&indexBPKeyTree, 99, i++);
 	insertKeyInBPKeyTree(&indexBPKeyTree, 110, i++);
 	insertKeyInBPKeyTree(&indexBPKeyTree, 150, i++);
 	insertKeyInBPKeyTree(&indexBPKeyTree, 200, i++);
@@ -572,7 +570,6 @@ int main ()
 //	puts("\n############Range search########\n");
 
 
-
 	puts("\n############ 打印索引树信息 ########\n");
 	P_BPKeyNode temp = (P_BPKeyNode)malloc(sizeof(P_BPKeyNode));
 
@@ -585,7 +582,7 @@ int main ()
 	}
 
 	puts("\n############ 打印删除结点100后的树 ########\n");
-	delKeyInBPTree(&indexBPKeyTree,100);
+	delKeyInBPTree(&indexBPKeyTree,99);
 	printf("节点个数：%d\t根id:%d\tkey个数:%d\n", indexBPKeyTree.nodeNum, indexBPKeyTree.rootFileId, indexBPKeyTree.keyNum);
 	displayNode(indexBPKeyTree.treeRoot);
 
