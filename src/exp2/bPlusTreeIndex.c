@@ -513,7 +513,7 @@ int endBPKeyTree()
 	return 0;
 }
 
-
+/*
 int main ()
 {
 	int i = 1;
@@ -596,3 +596,4 @@ int main ()
 	endBPKeyTree();
 	return 0;
 }
+*/

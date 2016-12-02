@@ -2,10 +2,12 @@
 #include "structfile.h"
 #include "memblock.h"
 
+/* 
 int main()
 {
 
 	//文件 
+
 	createSysFile("../data/system01.dbf", 2*SIZE_PER_PAGE);
  	struct SysFile sf1;
  	readSysFile(&sf1);
@@ -30,4 +32,8 @@ int main()
 	
 	//写入数据 
 	writeDate(&sf1, buff, 1);
+	
+	//Test read page from file.
+	readPageFromFile(1, 1, buff, &sf1);
 }
+*/ 

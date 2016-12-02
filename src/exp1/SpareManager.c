@@ -1,5 +1,5 @@
 #include "stdio.h"
-#include "structfile.c"
+#include "structfile.h"
 #include "string.h"
 
 

@@ -56,6 +56,6 @@ struct Page
    int pageID;	//page ID 
    long free_size;
    long recordNumber;         //Page里面有多少记录
-   struct EMP emp[247];
+   struct EMP emp[247];//char
 };
 

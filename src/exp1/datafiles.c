@@ -205,7 +205,7 @@ int saveSysFile(struct SysFile *sf1)
  };
 
 
- int readPageFromFile(long file_id, long pageno, struct MemBlock *pofm, struct SysFile *sf1)
+ int readPageFromFile(long fid, long pageno, struct MemBlock *pofm, long pageId, struct SysFile *sf1)
  {
 /**
  * @brief 读数据文件 
@@ -216,20 +216,21 @@ int saveSysFile(struct SysFile *sf1)
  * @author Andy
  * @date 2016/10/16 
  **/
- 	/* 
+	char *filename;
+	filename=sf1->files[fid].fileName;
+	
 	printf("Read a page from file.\n");
 	FILE *fp;
- 	struct student s2;
- 	struct DataFileHead df2;
- 	char *filename;
-	filename = sf1->files[file_id].fileName;
+	//readSysFile(&sf1); 
+ 	struct DataFileHead df1;
+	puts(filename);
+	puts("hello world");
  	fp=fopen(filename, "rb");
  	rewind(fp);
 
  	fseek(fp, SIZE_PER_PAGE*pageno, SEEK_SET);
-	fread(pofm, SIZE_PER_PAGE, 1,fp);//把文件内容读入到缓存
+	fread(pofm->data[pageId][0], SIZE_PER_PAGE, 1, fp);//把文件内容读入到缓存
 	fclose(fp);
-	*/ 
  };
  
 
